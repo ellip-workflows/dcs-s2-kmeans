@@ -45,8 +45,23 @@ function cleanExit ()
   exit ${retval}
 }
 
+trap cleanExit EXIT
+
+function set_env() {
+
+  bands="$( ciop-getparam bands )"
+
+  export SNAP_HOME=/opt/snap
+  export PATH=${SNAP_HOME}/bin:${PATH}
+  export SNAP_VERSION=$( cat ${SNAP_HOME}/VERSION.txt )
+
+  return 0
+  
+}
 
 function main() {
+
+  set_env || exit $?
 
   input=$1
   
@@ -58,7 +73,7 @@ function main() {
   online_resource="$( opensearch-client ${input} enclosure )"
   [[ -z ${online_resource} ]] && return ${ERR_NO_URL}
 
-  ciop-log "INFO" "(2 of ${num_steps}) Retrieve Sentinel-2 product from ${online_resource"
+  ciop-log "INFO" "(2 of ${num_steps}) Retrieve Sentinel-2 product from ${online_resource}"
   local_s2="$( ciop-copy ${online_resource} )"
   [[ -z ${local_s2} ]] && return ${ERR_NO_PRD} 
 
