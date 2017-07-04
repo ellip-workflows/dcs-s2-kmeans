@@ -3,8 +3,19 @@
   <jobTemplates>
     <jobTemplate id="k-means">
       <streamingExecutable>/application/k-means/run</streamingExecutable>
+      <defaultParameters>						
+        <parameter id="bands" title="Source bands" abstract="Source bands" maxOccurs="1" scope="runtime" type="LiteralData">B2,B3,B4,B5,B6,B7,B8,B8A,B10,B12</parameter>
+        <parameter id="upsampling" title="Upsampling method" abstract="Upsampling method" maxOccurs="1" scope="runtime" type="LiteralData">
+          <options>
+            <default>Nearest</default>
+            <option>Bilinear</option>
+            <option>Bicubic</option>
+          </options>
+        </parameter>
+        <parameter id="enddate" title="End date" abstract="End date of the TOI. Used as queryable for the MERIS Level 1 catalogue" scope="runtime" type="opensearch" target="time:end" maxOccurs="1">2012-04-04</parameter>
+      </defaultParameters>
       <defaultJobconf>
-                <property id="mapred.task.timeout">9900000000000</property>
+        <property id="mapred.task.timeout">9900000000000</property>
       </defaultJobconf>
     </jobTemplate>
   </jobTemplates>
