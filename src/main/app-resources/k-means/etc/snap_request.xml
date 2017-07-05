@@ -7,7 +7,7 @@
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <selectedPolarisations/>
-<sourceBands>B2,B3,B4,B5</sourceBands>
+<sourceBands>${sourceBands}</sourceBands>
       <bandNamePattern/>
     </parameters>
   </node>
@@ -19,10 +19,10 @@
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
       <referenceBand/>
       <targetResolution>${targetResolution}</targetResolution>
-      <upsampling>Nearest</upsampling>
-      <downsampling>First</downsampling>
-      <flagDownsampling>First</flagDownsampling>
-      <resampleOnPyramidLevels>true</resampleOnPyramidLevels>
+      <upsampling>${upsampling}</upsampling>
+      <downsampling>${downsampling}</downsampling>
+      <flagDownsampling>${flagDownsampling}</flagDownsampling>
+      <resampleOnPyramidLevels>${resampleOnPyramidLevels}</resampleOnPyramidLevels>
     </parameters>
   </node>
   <node id="KMeansClusterAnalysis">
@@ -31,10 +31,10 @@
       <sourceProduct refid="Resample"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <clusterCount>14</clusterCount>
-      <iterationCount>30</iterationCount>
-      <randomSeed>31415</randomSeed>
-<sourceBandNames>B2,B3,B4,B5</sourceBandNames>
+      <clusterCount>${clusterCount}</clusterCount>
+      <iterationCount>${iterationCount}</iterationCount>
+      <randomSeed>${randomSeed}</randomSeed>
+<sourceBandNames>${sourceBandNames}</sourceBandNames>
       <roiMaskName/>
     </parameters>
   </node>
@@ -42,8 +42,7 @@
     <operator>Read</operator>
     <sources/>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>/home/fbrito/S2A_OPER_PRD_MSIL1C_PDMC_20161119T215754_R081_V20161119T133222_20161119T133222/S2A_OPER_PRD_MSIL1C_PDMC_20161119T215754_R081_V20161119T133222_20161119T133222.SAFE/S2A_OPER_MTD_SAFL1C_PDMC_20161119T215754_R081_V20161119T133222_20161119T133222.xml</file>
-    <!-- <formatName>SENTINEL-2-MSI-MultiRes-UTM31N</formatName>-->
+      <file>${in}</file>
     </parameters>
   </node>
   <node id="Write">
@@ -52,26 +51,8 @@
       <sourceProduct refid="KMeansClusterAnalysis"/>
     </sources>
     <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>/home/fbrito/S2A_OPER_MTD_SAFL1C_PDMC_20161022T224040_R108_V20161022T103052_20161022T103052_resampled_CLUSTERS_2.dim</file>
+      <file>${out}</file>
       <formatName>BEAM-DIMAP</formatName>
     </parameters>
   </node>
-  <applicationData id="Presentation">
-    <Description/>
-    <node id="BandSelect">
-      <displayPosition x="162.0" y="163.0"/>
-    </node>
-    <node id="Resample">
-      <displayPosition x="333.0" y="80.0"/>
-    </node>
-    <node id="KMeansClusterAnalysis">
-      <displayPosition x="448.0" y="41.0"/>
-    </node>
-    <node id="Read">
-      <displayPosition x="54.0" y="149.0"/>
-    </node>
-    <node id="Write">
-      <displayPosition x="498.0" y="122.0"/>
-    </node>
-  </applicationData>
 </graph>
