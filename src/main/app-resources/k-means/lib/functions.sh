@@ -88,9 +88,12 @@ function main() {
 
   # find MTD file in ${local_s2}
   
+  out=${TMPDIR}/$( basename ${local_s2} )_result
   SNAP_REQUEST=${_CIOP_APPLICATION_PATH/k-means/etc/snap_request.xml
 
   gpt ${SNAP_REQUEST} \
+    -Pin=${s2mtd} \
+    -Pout=${out} \
     -PsourceBands="${sourceBands}" \
     -Pupsampling="${upsampling}" \
     -Pdownsampling="${downsampling}" \
@@ -101,9 +104,22 @@ function main() {
     -PiterationCount=${iterationCount} \
     -PrandomSeed=${randomSeed} \
     -PsourceBandNames=${sourceBandNames} 1>&2 || return ${ERR_SNAP} 
-    
+  
+  tar -C ${TMPDIR} -czf ${out}.tgz ${out}.dim ${out}.data 
+  ciop-publish -m ${out}.tgz   
+   
+  # Convert to GeoTIFF
+  gdal_translate ${out}.data/class_indices.img ${out}.tif 
+  ciop-publish -m ${out}.tif 
+  
+  gdal_translate -of PNG -a_nodata 0 -scale 0 1 0 255 ${out}.tif  ${out}.png
+  ciop-publish -m ${out}.png
+  
+  listgeo -tfw ${out}.tif
+  mv ${out}.tfw ${out}.pngw
+  ciop-publish -m ${out}.pngw
+  
   # clean-up
   rm -fr ${local_s2}
-   gpt ${SNAP_REQUEST} 
-    
- }
+ 
+}
