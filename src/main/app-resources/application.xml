@@ -63,7 +63,7 @@
     <node id="k-means">
       <job id="k-means"/>
       <sources>
-        <source id="source" title="Sentinel-2 references" abstract="List of Sentinel-2 references" refid="string:list" scope="runtime">https://catalog.terradue.com//e-learning/search?uid=S2A_OPER_PRD_MSIL1C_PDMC_20161119T215754_R081_V20161119T133222_20161119T133222.zip</source>
+        <source id="source" title="Sentinel-2 references" abstract="List of Sentinel-2 references" refid="string:list" scope="runtime">https://catalog.terradue.com//e-learning/search?uid=S2A_OPER_PRD_MSIL1C_PDMC_20161119T215754_R081_V20161119T133222_20161119T133222</source>
       </sources>
     </node>
   </workflow>

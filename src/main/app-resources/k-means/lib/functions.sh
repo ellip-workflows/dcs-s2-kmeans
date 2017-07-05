@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # define the exit codes
 SUCCESS=0
 ERR_NO_URL=5
@@ -51,10 +53,10 @@ function set_env() {
 
   export sourceBands="$( ciop-getparam sourceBands )"
   export upsampling="$( ciop-getparam upsampling )"
-  export downsampling="$( ciop-getparam upsampling )"
+  export downsampling="$( ciop-getparam downsampling )"
   export flagDownsampling="$( ciop-getparam flagDownsampling )"
   export resampleOnPyramidLevels="$( ciop-getparam resampleOnPyramidLevels )"
-  export targetResolution="$( ciop-getparam targetResolution )"
+  export targetResolution="$( ciop-getparam targetResolution | sed 's/m//')"
   export clusterCount="$( ciop-getparam clusterCount )"
   export iterationCount="$( ciop-getparam iterationCount )"
   export randomSeed="$( ciop-getparam randomSeed )"
@@ -87,9 +89,17 @@ function main() {
   [[ -z ${local_s2} ]] && return ${ERR_NO_PRD} 
 
   # find MTD file in ${local_s2}
+  s2mtd="$( find ${local_s2} -name "MTD_MSIL1C.xml" )"
+
+  [[ -z "${s2mtd}" ]] && s2mtd="$( find ${local_s2} -name "S2?_OPER_MTD_SAFL1C*.xml" )"   
   
-  out=${TMPDIR}/$( basename ${local_s2} )_result
-  SNAP_REQUEST=${_CIOP_APPLICATION_PATH/k-means/etc/snap_request.xml
+  [[ -z "${s2mtd}" ]] && return ${ERR_NO_S2MTD}
+
+  out=${local_s2}_result
+  SNAP_REQUEST=${_CIOP_APPLICATION_PATH}/k-means/etc/snap_request.xml
+
+  
+  ciop-log "INFO" "(3 of ${num_steps}) Invoke SNAP GPT"
 
   gpt ${SNAP_REQUEST} \
     -Pin=${s2mtd} \
@@ -97,29 +107,34 @@ function main() {
     -PsourceBands="${sourceBands}" \
     -Pupsampling="${upsampling}" \
     -Pdownsampling="${downsampling}" \
-    -Pflagdownsampling="${flagdownsampling}" \
+    -PflagDownsampling="${flagDownsampling}" \
     -PresampleOnPyramidLevels="${resampleOnPyramidLevels}" \
-    -PtargetResolution="${targetResolution}"
+    -PtargetResolution="${targetResolution}" \
     -PclusterCount=${clusterCount} \
     -PiterationCount=${iterationCount} \
     -PrandomSeed=${randomSeed} \
     -PsourceBandNames=${sourceBandNames} 1>&2 || return ${ERR_SNAP} 
-  
+
+  ciop-log "INFO" "(4 of ${num_steps}) Compress results"  
   tar -C ${TMPDIR} -czf ${out}.tgz ${out}.dim ${out}.data 
   ciop-publish -m ${out}.tgz   
    
+  ciop-log "INFO" "(5 of ${num_steps}) Convert to geotiff"
   # Convert to GeoTIFF
   gdal_translate ${out}.data/class_indices.img ${out}.tif 
   ciop-publish -m ${out}.tif 
   
+  ciop-log "INFO" "(6 of ${num_steps}) Convert to PNG"
   gdal_translate -of PNG -a_nodata 0 -scale 0 1 0 255 ${out}.tif  ${out}.png
   ciop-publish -m ${out}.png
   
   listgeo -tfw ${out}.tif
   mv ${out}.tfw ${out}.pngw
   ciop-publish -m ${out}.pngw
-  
+ 
+  ciop-log "INFO" "(7 of ${num_steps}) Clean up" 
   # clean-up
   rm -fr ${local_s2}
- 
+  rm -fr ${out}*
+
 }
