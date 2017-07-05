@@ -49,9 +49,17 @@ trap cleanExit EXIT
 
 function set_env() {
 
-  export bands="$( ciop-getparam bands )"
+  export sourceBands="$( ciop-getparam sourceBands )"
   export upsampling="$( ciop-getparam upsampling )"
-
+  export downsampling="$( ciop-getparam upsampling )"
+  export flagDownsampling="$( ciop-getparam flagDownsampling )"
+  export resampleOnPyramidLevels="$( ciop-getparam resampleOnPyramidLevels )"
+  export targetResolution="$( ciop-getparam targetResolution )"
+  export clusterCount="$( ciop-getparam clusterCount )"
+  export iterationCount="$( ciop-getparam iterationCount )"
+  export randomSeed="$( ciop-getparam randomSeed )"
+  export sourceBandNames="$( ciop-getparam sourceBandNames )"
+  
   export SNAP_HOME=/opt/snap
   export PATH=${SNAP_HOME}/bin:${PATH}
   export SNAP_VERSION=$( cat ${SNAP_HOME}/VERSION.txt )
@@ -83,83 +91,19 @@ function main() {
   SNAP_REQUEST=${_CIOP_APPLICATION_PATH/k-means/etc/snap_request.xml
 
   gpt ${SNAP_REQUEST} \
-    -Pbands="${bands}" \
+    -PsourceBands="${sourceBands}" \
     -Pupsampling="${upsampling}" \
     -Pdownsampling="${downsampling}" \
     -Pflagdownsampling="${flagdownsampling}" \
     -PresampleOnPyramidLevels="${resampleOnPyramidLevels}" \
-    -Presolution="${resolution}"
-    -PtargetResolution=${targetResolution} \
-    -P
-  
+    -PtargetResolution="${targetResolution}"
+    -PclusterCount=${clusterCount} \
+    -PiterationCount=${iterationCount} \
+    -PrandomSeed=${randomSeed} \
+    -PsourceBandNames=${sourceBandNames} 1>&2 || return ${ERR_SNAP} 
+    
   # clean-up
   rm -fr ${local_s2}
-  rm -fr ${SNAP_REQUEST}
-    
-  cat << EOF > ${SNAP_REQUEST}
- <?xml version="1.0" encoding="UTF-8"?>
- <graph id="Graph">
-  <version>1.0</version>
-  <node id="Read">
-    <operator>Read</operator>
-    <sources/>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>${local_s2}</file>
-      <formatName>SENTINEL-2-MSI-MultiRes-UTM31N</formatName>
-    </parameters>
-  </node>
-  <node id="BandSelect">
-    <operator>BandSelect</operator>
-    <sources>
-      <sourceProduct refid="Read"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <selectedPolarisations/>
-      <sourceBands>B2,B3,B4,B5,B6,B7,B8,B8A,B10,B12</sourceBands>
-      <bandNamePattern/>
-    </parameters>
-  </node>
-  <node id="Resample">
-    <operator>Resample</operator>
-    <sources>
-      <sourceProduct refid="BandSelect"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <referenceBand/>
-      <targetWidth>10980</targetWidth>
-      <targetHeight>10980</targetHeight>
-      <targetResolution/>
-      <upsampling>Nearest</upsampling>
-      <downsampling>First</downsampling>
-      <flagDownsampling>First</flagDownsampling>
-      <resampleOnPyramidLevels>true</resampleOnPyramidLevels>
-    </parameters>
-  </node>
-  <node id="KMeansClusterAnalysis">
-    <operator>KMeansClusterAnalysis</operator>
-    <sources>
-      <sourceProduct refid="Resample"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <clusterCount>14</clusterCount>
-      <iterationCount>30</iterationCount>
-      <randomSeed>31415</randomSeed>
-      <sourceBandNames>B2,B3,B4,B5,B6,B7,B8,B8A,B10,B12</sourceBandNames>
-      <roiMaskName/>
-    </parameters>
-  </node>
-  <node id="Write">
-    <operator>Write</operator>
-    <sources>
-      <sourceProduct.1 refid="KMeansClusterAnalysis"/>
-    </sources>
-    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
-      <file>/Users/emathot/S2A_MSIL1C_20170526T105031_N0205_R051_T31UDQ_20170526T105518.dim</file>
-      <formatName>BEAM-DIMAP</formatName>
-    </parameters>
-  </node>   
-EOF
-
-  gpt ${SNAP_REQUEST} || return ${ERR_SNAP}
+   gpt ${SNAP_REQUEST} 
     
  }
