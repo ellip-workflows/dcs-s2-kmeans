@@ -1,0 +1,77 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="BandSelect">
+    <operator>BandSelect</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <selectedPolarisations/>
+<sourceBands>B2,B3,B4,B5</sourceBands>
+      <bandNamePattern/>
+    </parameters>
+  </node>
+  <node id="Resample">
+    <operator>Resample</operator>
+    <sources>
+      <sourceProduct refid="BandSelect"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <referenceBand/>
+      <targetResolution>${targetResolution}</targetResolution>
+      <upsampling>Nearest</upsampling>
+      <downsampling>First</downsampling>
+      <flagDownsampling>First</flagDownsampling>
+      <resampleOnPyramidLevels>true</resampleOnPyramidLevels>
+    </parameters>
+  </node>
+  <node id="KMeansClusterAnalysis">
+    <operator>KMeansClusterAnalysis</operator>
+    <sources>
+      <sourceProduct refid="Resample"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <clusterCount>14</clusterCount>
+      <iterationCount>30</iterationCount>
+      <randomSeed>31415</randomSeed>
+<sourceBandNames>B2,B3,B4,B5</sourceBandNames>
+      <roiMaskName/>
+    </parameters>
+  </node>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>/home/fbrito/S2A_OPER_PRD_MSIL1C_PDMC_20161119T215754_R081_V20161119T133222_20161119T133222/S2A_OPER_PRD_MSIL1C_PDMC_20161119T215754_R081_V20161119T133222_20161119T133222.SAFE/S2A_OPER_MTD_SAFL1C_PDMC_20161119T215754_R081_V20161119T133222_20161119T133222.xml</file>
+    <!-- <formatName>SENTINEL-2-MSI-MultiRes-UTM31N</formatName>-->
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="KMeansClusterAnalysis"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>/home/fbrito/S2A_OPER_MTD_SAFL1C_PDMC_20161022T224040_R108_V20161022T103052_20161022T103052_resampled_CLUSTERS_2.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="BandSelect">
+      <displayPosition x="162.0" y="163.0"/>
+    </node>
+    <node id="Resample">
+      <displayPosition x="333.0" y="80.0"/>
+    </node>
+    <node id="KMeansClusterAnalysis">
+      <displayPosition x="448.0" y="41.0"/>
+    </node>
+    <node id="Read">
+      <displayPosition x="54.0" y="149.0"/>
+    </node>
+    <node id="Write">
+      <displayPosition x="498.0" y="122.0"/>
+    </node>
+  </applicationData>
+</graph>
