@@ -4,7 +4,7 @@
     <jobTemplate id="k-means">
       <streamingExecutable>/application/k-means/run</streamingExecutable>
       <defaultParameters>
-        <parameter id="bands" title="Source bands" abstract="Source bands" maxOccurs="1" scope="runtime" type="LiteralData">B2,B3,B4,B5,B6,B7,B8,B8A,B10,B12</parameter>
+        <parameter id="sourceBands" title="Source bands" abstract="Source bands" maxOccurs="1" scope="runtime" type="LiteralData">B2,B3,B4,B5,B6,B7,B8,B8A,B10,B12</parameter>
         <parameter id="upsampling" title="Upsampling method" abstract="Upsampling method" maxOccurs="1" scope="runtime" type="LiteralData">
           <options>
             <option>Nearest</option>
@@ -40,7 +40,7 @@
             <default>true</default>
           </options>
         </parameter>
-        <parameter id="resolution" title="Target resolution" abstract="Target resolution" maxOccurs="1" scope="runtime" type="LiteralData">
+        <parameter id="targetResolution" title="Target resolution" abstract="Target resolution" maxOccurs="1" scope="runtime" type="LiteralData">
           <options>
             <option>60m</option>
             <option>20m</option>
@@ -51,7 +51,7 @@
         <parameter id="clusterCount" title="Number of clusters" abstract="Number of clusters" maxOccurs="1" scope="runtime" type="LiteralData">14</parameter>
         <parameter id="iterationCount" title="Number of iterations" abstract="Number of iterations" maxOccurs="1" scope="runtime" type="LiteralData">30</parameter>
         <parameter id="randomSeed" title="Random seed" abstract="Random seed" maxOccurs="1" scope="runtime" type="LiteralData">31415</parameter>
-        <parameter id="bands" title="Source bands" abstract="Source bands" maxOccurs="1" scope="runtime" type="LiteralData">B2,B3,B4,B5,B6,B7,B8,B8A,B10,B12</parameter>
+        <parameter id="sourceBandNames" title="Source band names" abstract="Source band names for k-means operator" maxOccurs="1" scope="runtime" type="LiteralData">B2,B3,B4,B5,B6,B7,B8,B8A,B10,B12</parameter>
       </defaultParameters>
       <defaultJobconf>
         <property id="mapred.task.timeout">9900000000000</property>
