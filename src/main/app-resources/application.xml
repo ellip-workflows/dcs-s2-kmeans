@@ -23,7 +23,7 @@
             <default>First</default>
           </options>
         </parameter>
-        <parameter id="flagdownsampling" title="Flag downsampling method" abstract="Flag downsampling method" maxOccurs="1" scope="runtime" type="LiteralData">
+        <parameter id="flagDownsampling" title="Flag downsampling method" abstract="Flag downsampling method" maxOccurs="1" scope="runtime" type="LiteralData">
           <options>
             <option>First</option>
             <option>FlagAnd</option>
