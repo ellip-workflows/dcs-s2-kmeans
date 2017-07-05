@@ -49,7 +49,8 @@ trap cleanExit EXIT
 
 function set_env() {
 
-  bands="$( ciop-getparam bands )"
+  export bands="$( ciop-getparam bands )"
+  export upsampling="$( ciop-getparam upsampling )"
 
   export SNAP_HOME=/opt/snap
   export PATH=${SNAP_HOME}/bin:${PATH}
@@ -77,7 +78,19 @@ function main() {
   local_s2="$( ciop-copy -o ${TMPDIR} ${online_resource} )"
   [[ -z ${local_s2} ]] && return ${ERR_NO_PRD} 
 
-  SNAP_REQUEST=${TMPDIR}/snap_request.xml
+  # find MTD file in ${local_s2}
+  
+  SNAP_REQUEST=${_CIOP_APPLICATION_PATH/k-means/etc/snap_request.xml
+
+  gpt ${SNAP_REQUEST} \
+    -Pbands="${bands}" \
+    -Pupsampling="${upsampling}" \
+    -Pdownsampling="${downsampling}" \
+    -Pflagdownsampling="${flagdownsampling}" \
+    -PresampleOnPyramidLevels="${resampleOnPyramidLevels}" \
+    -Presolution="${resolution}"
+    -PtargetResolution=${targetResolution} \
+    -P
   
   # clean-up
   rm -fr ${local_s2}
