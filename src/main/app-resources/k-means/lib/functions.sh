@@ -6,18 +6,13 @@ set -x
 SUCCESS=0
 ERR_NO_URL=5
 ERR_NO_PRD=8
-ERR_GDAL_VRT=10
-ERR_MAP_BANDS=15
-ERR_OTB_BUNDLETOPERFECTSENSOR=20
-ERR_DN2REF_4=25
-ERR_DN2REF_3=25
-ERR_DN2REF_2=25
-ERR_GDAL_VRT2=30
-ERR_GDAL_TRANSLATE=35
-ERR_GDAL_WARP=40
-ERR_GDAL_TRANSLATE=45
-ERR_GDAL_ADDO=50
-ERR_PUBLISH=55
+ERR_NO_S2MTD=10
+ERR_SNAP=15
+ERR_COMPRESS=20
+ERR_GDAL=25
+ERR_GDAL_QL=30
+ERR_GEO_QL=35
+ERR_PUBLISH=40
 
 # add a trap to exit gracefully
 function cleanExit ()
@@ -27,18 +22,13 @@ function cleanExit ()
   case "${retval}" in
     ${SUCCESS}) msg="Processing successfully concluded";;
     ${ERR_NO_URL}) msg="The Sentinel-2 product online resource could not be resolved";;
-    ${ERR_NO_PRD}) msg="The Landsat 8 product online resource could not be retrieved";;
-    ${ERR_GDAL_VRT}) msg="Failed to create the RGB VRT";;
-    ${ERR_MAP_BANDS}) msg="Failed to map RGB bands";;
-    ${ERR_OTB_BUNDLETOPERFECTSENSOR}) msg="Failed to apply BundleToPerfectSensor OTB operator";;
-    ${ERR_DN2REF_4}) msg="Failed to convert DN to reflectance";;
-    ${ERR_DN2REF_3}) msg="Failed to convert DN to reflectance";;
-    ${ERR_DN2REF_2}) msg="Failed to convert DN to reflectance";;
-    ${ERR_GDAL_VRT2}) msg="Failed to create VRT with panchromatic bands";;
-    ${ERR_GDAL_TRANSLATE}) msg="Failed to apply gdal_translate";;
-    ${ERR_GDAL_WARP}) msg="Failed to warp";;
-    ${ERR_GDAL_TRANSLATE2}) msg="Failed to apply gdal_translate";;
-    ${ERR_ADDO}) msg="Failed to create levels";;
+    ${ERR_NO_PRD}) msg="The Sentinel-2 product online resource could not be retrieved";;
+    ${ERR_NO_S2MTD}) msg="Could not find Sentinel-2 product metadata file";;
+    ${ERR_SNAP}) msg="SNAP GPT failed";;
+    ${ERR_GDAL}) msg="GDAL failed to convert result to tif";;
+    ${ERR_GDAL_QL}) msg="GDAL failed to convert result to PNG";;
+    ${ERR_COMPRESS}) msg="Failed to compress results";;
+    ${ERR_GEO_QL}) msg="Failed to georeference PNG";;
     ${ERR_PUBLISH}) msg="Failed to publish the results";;
     *) msg="Unknown error";;
   esac
@@ -116,21 +106,21 @@ function main() {
     -PsourceBandNames=${sourceBandNames} 1>&2 || return ${ERR_SNAP} 
 
   ciop-log "INFO" "(4 of ${num_steps}) Compress results"  
-  tar -C ${TMPDIR} -czf ${out}.tgz $( basename ${out}).dim $( basename ${out}).data 
-  ciop-publish -m ${out}.tgz   
+  tar -C ${TMPDIR} -czf ${out}.tgz $( basename ${out}).dim $( basename ${out}).data || return ${ERR_COMPRESS}
+  ciop-publish -m ${out}.tgz || return ${ERR_PUBLISH}  
    
   ciop-log "INFO" "(5 of ${num_steps}) Convert to geotiff"
   # Convert to GeoTIFF
-  gdal_translate ${out}.data/class_indices.img ${out}.tif 
-  ciop-publish -m ${out}.tif 
+  gdal_translate ${out}.data/class_indices.img ${out}.tif || return ${ERR_GDAL}
+  ciop-publish -m ${out}.tif || return ${ERR_PUBLISH}
   
   ciop-log "INFO" "(6 of ${num_steps}) Convert to PNG"
-  gdal_translate -of PNG -a_nodata 0 -scale 0 1 0 255 ${out}.tif  ${out}.png
-  ciop-publish -m ${out}.png
+  gdal_translate -of PNG -a_nodata 0 -scale 0 1 0 255 ${out}.tif ${out}.png || return ${ERR_GDAL_QL}
+  ciop-publish -m ${out}.png || return ${ERR_PUBLISH}
   
-  listgeo -tfw ${out}.tif
+  listgeo -tfw ${out}.tif || return ${ERR_GEO_QL}
   mv ${out}.tfw ${out}.pngw
-  ciop-publish -m ${out}.pngw
+  ciop-publish -m ${out}.pngw || return ${ERR_PUBLISH}
  
   ciop-log "INFO" "(7 of ${num_steps}) Clean up" 
   # clean-up
