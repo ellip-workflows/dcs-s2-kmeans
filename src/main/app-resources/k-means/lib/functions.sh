@@ -116,7 +116,7 @@ function main() {
     -PsourceBandNames=${sourceBandNames} 1>&2 || return ${ERR_SNAP} 
 
   ciop-log "INFO" "(4 of ${num_steps}) Compress results"  
-  tar -C ${TMPDIR} -czf ${out}.tgz ${out}.dim ${out}.data 
+  tar -C ${TMPDIR} -czf ${out}.tgz $( basename ${out}).dim $( basename ${out}).data 
   ciop-publish -m ${out}.tgz   
    
   ciop-log "INFO" "(5 of ${num_steps}) Convert to geotiff"
