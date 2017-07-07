@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 # define the exit codes
 SUCCESS=0
 ERR_NO_URL=5
