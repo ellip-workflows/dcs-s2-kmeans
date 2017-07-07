@@ -29,7 +29,7 @@ function cleanExit ()
     ${ERR_GEO_QL}) msg="Failed to georeference PNG";;
     ${ERR_PUBLISH}) msg="Failed to publish the results";;
     *) msg="Unknown error";;
-  esac
+ esac
 
   [ "${retval}" != "0" ] && ciop-log "ERROR" "Error ${retval} - ${msg}, processing aborted" || ciop-log "INFO" "${msg}"
   exit ${retval}
